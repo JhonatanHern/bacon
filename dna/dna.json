@@ -1,0 +1,58 @@
+{
+    "Version": 1,
+    "UUID": "295f8e90-ded4-11e8-a554-705ab6aa60cc",
+    "Name": "bacon",
+    "Properties": {
+        "description": "provides an application template",
+        "language": "en"
+    },
+    "PropertiesSchemaFile": "properties_schema.json",
+    "DHTConfig": {
+        "HashType": "sha2-256",
+        "RedundancyFactor": 0
+    },
+    "Progenitor": {
+        "Identity": "",
+        "PubKey": null
+    },
+    "Zomes": [
+        {
+            "Name": "bacon",
+            "Description": "Coin functionality",
+            "CodeFile": "bacon.js",
+            "RibosomeType": "js",
+            "BridgeFuncs": null,
+            "Config": null,
+            "Entries": [
+                {
+                    "Name": "transaction",
+                    "DataFormat": "json",
+                    "SchemaFile": "transaction.json",
+                    "Sharing": "public"
+                },
+                {
+                    "Name": "link",
+                    "DataFormat": "link",
+                    "Sharing": "public"
+                }
+            ],
+            "Functions": [
+                {
+                    "Name": "transact",
+                    "CallingType": "json",
+                    "Exposure": "public"
+                },
+                {
+                    "Name": "currentBalance",
+                    "CallingType": "json",
+                    "Exposure": "public"
+                },
+                {
+                    "Name": "getHistory",
+                    "CallingType": "json",
+                    "Exposure": "public"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,30 @@
+{
+  "name": "bacon",
+  "version": "1.0.0",
+  "description": "holochain-powered basic criptocurency design",
+  "main": "holo-server.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JhonatanHern/bacon.git"
+  },
+  "keywords": [
+    "holochain",
+    "bacon",
+    "javascript"
+  ],
+  "author": "JhonatanHern",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JhonatanHern/bacon/issues"
+  },
+  "homepage": "https://github.com/JhonatanHern/bacon#readme",
+  "dependencies": {
+    "chokidar": "^2.0.4"
+  }
+}

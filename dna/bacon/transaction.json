@@ -1,0 +1,16 @@
+{
+	"title": "Transaction Schema",
+	"type": "object",
+	"properties": {
+		"concept": {
+			"type": "string"
+		},
+		"amount": {
+			"type": "integer"
+		},
+		"timestamp": {
+			"type": "integer"
+		}
+	},
+    "required": ["content", "timestamp"]
+}
