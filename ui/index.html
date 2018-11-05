@@ -2,7 +2,49 @@
 <html>
 <head>
 	<title>Bacon</title>
-	<style></style>
+	<style>
+		:root {
+		    --main-color: #5d1c8e;
+		    --second-color: yellow;
+		}
+		*{box-sizing: border-box}
+		html{
+			min-height: 100vh;
+		}
+		body{
+			margin: 0;
+			background: var(--main-color);
+			color: var(--second-color);
+			text-align: center;
+			font-size: 1.1em;
+			min-height: 100vh;
+		}
+		button{
+			background: var(--main-color);
+			left: 50%;
+			padding: .6em;
+			border: 4px solid var(--second-color);
+			min-width: 30%;
+			display: block;
+			font-size: 1.2em;
+			position: relative;
+			color: var(--second-color);
+			margin-bottom: .7em;
+			transition-duration: .3s;
+			cursor: pointer;
+			transform: translateX(-50%);
+		}
+		button:hover{
+			background: var(--second-color);
+			color: var(--main-color);
+		}
+		a{
+			cursor: pointer;
+		}
+		a:hover{
+			text-decoration: underline;
+		}
+	</style>
 </head>
 <body>
 	<h1>Bacon</h1>
@@ -10,8 +52,24 @@
 		Hello, this is bacon, my personal holochain-powered criptocurrency
 	</p>
 	<button>Make deposit</button>
-	<button>get my history</button>
-	<button>get someone's history</button>
-	<script></script>
+	<button>Get my history</button>
+	<button>Get someone's history</button>
+	<span>
+		Current amount: <span id="current">Loading...</span>
+		<br>
+		<a onclick="refreshAmount()">Refresh Amount</a>
+	</span>
+	<script>
+		var currentAmount = 0
+		async function refreshAmount() {
+			const response = await fetch('/fn/bacon/currentBalance',{method:'POST'})
+			if (!response.ok) {
+				console.error('error fetching current amount')
+				return
+			}
+			const data = JSON.parse(await response.json())
+			console.log(data)
+		}
+	</script>
 </body>
 </html>

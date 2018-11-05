@@ -2,7 +2,7 @@ const { spawn } = require('child_process'),
 	fs = require('fs'),
 	chokidar = require('chokidar')
 
-let holoserver = spawn('hcdev', ['web']),
+let holoserver = spawn('hcdev',['web']),
 	stream = holoserver.stdout
 
 stream.on('data', (chunk) => {
@@ -14,8 +14,10 @@ function restart() {
 	console.clear()
 	console.log('Restarting server...')
 	holoserver = spawn('hcdev', ['web'])
-	stream = holoserver.stdout
-	stream.on('data', (chunk) => {
+	holoserver.stdout.on('data', (chunk) => {
+		process.stdout.write(chunk.toString())
+	})
+	holoserver.stderr.on('data', (chunk) => {
 		process.stdout.write(chunk.toString())
 	})
 }

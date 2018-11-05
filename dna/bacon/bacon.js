@@ -36,7 +36,7 @@ function validateCommit (entryType, entry, header, pkg, sources) {
       if (entry.Base === 'in') {
         return 
       }else if(entry.Base === 'out'){
-
+        return 
       }
   }
   return false
@@ -63,6 +63,19 @@ function validateDelPkg (entryType) {
   return null;
 }
 function transact(argument) {
+  var hash = commit('transaction',{
+    timestamp: (new Date()).valueOf(),
+    concept  : argument.concept,
+    amount   : argument.amount
+  })
+  hash = commit('link',{
+    Links:[
+      {
+        Base:App.Key.Hash,
+        Tag:'out'
+      }
+    ]
+  })
 }
 function currentBalance(hash) {
 
