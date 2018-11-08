@@ -1,3 +1,4 @@
+// é á í ó ú ñ Ñ
 const { spawn } = require('child_process'),
 	fs = require('fs'),
 	chokidar = require('chokidar')

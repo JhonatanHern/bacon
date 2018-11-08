@@ -1,3 +1,14 @@
+/*
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+*/
 function isValidEntryType (entryType) {
   // Add additonal entry types here as they are added to dna.json.
   switch(entryType){
@@ -62,20 +73,39 @@ function validateModPkg (entryType) {
 function validateDelPkg (entryType) {
   return null;
 }
-function transact(argument) {
-  var hash = commit('transaction',{
+function transact(transactionData) {
+  var transaction = {
     timestamp: (new Date()).valueOf(),
-    concept  : argument.concept,
-    amount   : argument.amount
-  })
-  hash = commit('link',{
+    concept  : transactionData.concept,
+    amount   : transactionData.amount,
+    from     : App.Agent.Hash,
+    to       : transactionData.to
+  }
+  var hash = commit('transaction',transaction)
+  var linkHash = commit('link',{
     Links:[
       {
-        Base:App.Key.Hash,
+        Base:transactionData.to,
+        Link:hash,
         Tag:'out'
       }
     ]
   })
+  transaction.to_link = linkHash
+  update('transaction',transaction,hash)
+  //send message to peer so he can validate it
+  send( transactionData.to , hash , { Callback : { Function : 'sendRes' , ID : Math.random()+'' } } )
+}
+function sendRes(message,id) {
+  console.log('response received:')
+  debug(message)
+}
+function receive(from, msg) {
+  var type = msg.type;
+  if (type=="ping") {
+    return App.Agent.Hash
+  }
+  return "unknown type"
 }
 function currentBalance(hash) {
 
