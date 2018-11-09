@@ -9,6 +9,8 @@
  * 
  * 
 */
+var initialBalance = 100
+
 function isValidEntryType (entryType) {
   // Add additonal entry types here as they are added to dna.json.
   switch(entryType){
@@ -40,6 +42,7 @@ function genesis () {
  */
 function validateCommit (entryType, entry, header, pkg, sources) {
   debug(entry)
+  return true
   switch(entryType){
     case 'transaction':
       return true
@@ -56,9 +59,12 @@ function validatePut (entryType, entry, header, pkg, sources) {
   return validateCommit(entryType, entry, header, pkg, sources);
 }
 function validateMod (entryType, entry, header, replaces, pkg, sources) {
+  return true
+  /*
   return validateCommit(entryType, entry, header, pkg, sources)
     // Only allow the creator of the entity to modify it.
     && getCreator(header.EntryLink) === getCreator(replaces);
+  */
 }
 function validateDel (entryType, hash, pkg, sources) {
   return false;
@@ -77,7 +83,7 @@ function transact(transactionData) {
   var transaction = {
     timestamp: (new Date()).valueOf(),
     concept  : transactionData.concept,
-    amount   : transactionData.amount,
+    amount   : Number(transactionData.amount),
     from     : App.Agent.Hash,
     to       : transactionData.to
   }
@@ -130,7 +136,25 @@ function currentBalance(peerAddress) {
   if (!peerAddress) {
     peerAddress = App.Agent.Hash
   }
-  var links = getLinks()
+  var links = getLinks( peerAddress, '' ,{ Load : true } )
+  var billing = initialBalance
+  for (var i = links.length - 1; i >= 0; i--) {
+    if (links[i].Entry.from_link && links[i].Entry.to_link) {//validated transaction
+      if (links[i].Entry.from === peerAddress && getCreator(links[i].Hash) === peerAddress) {
+        billing -= links[i].Entry.amount
+      }else if(links[i].Entry.to === peerAddress){
+        billing += links[i].Entry.amount
+      }
+    }
+  }
+  return billing
 }
 function getHistory(hash) {
+  if (!peerAddress) {
+    peerAddress = App.Agent.Hash
+  }
+  return getLinks( peerAddress, { Load : true } )
+}
+function getAddress() {
+  return App.Agent.Hash
 }

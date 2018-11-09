@@ -45,6 +45,33 @@
 		a:hover{
 			text-decoration: underline;
 		}
+		#my-address{
+			max-width: 100vw;
+			word-break: break-all;
+			margin-top: 1em;
+			display: block;
+		}
+		@media(max-width: 600px){
+			button{width: 90vw}
+		}
+		#modal{
+			background: rgba(0,0,0,.7);
+			left: 0;
+			position: fixed;
+			top: 0;
+			width: 100vw;
+			height: 100vh;
+			display: none;
+		}
+		#modal-data{
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%,-50%);
+			background: rgba(255,255,255,.95);
+			height: 90vh;
+			width: 80vw;
+		}
 	</style>
 </head>
 <body>
@@ -52,25 +79,22 @@
 	<p>
 		Hello, this is bacon, my personal holochain-powered criptocurrency
 	</p>
-	<button>Make deposit</button>
-	<button>Get my history</button>
-	<button>Get someone's history</button>
+	<button onclick="transfer()">Make deposit</button>
+	<button id="history">Get my history</button>
+	<button id="other-historty">Get someone's history</button>
+	<button onclick="consultBalance()">Get someone's balance</button>
 	<span>
 		Current amount: <span id="current">Loading...</span>
 		<br>
 		<a onclick="refreshAmount()">Refresh Amount</a>
+		<br>
 	</span>
-	<script>
-		var currentAmount = 0
-		async function refreshAmount() {
-			const response = await fetch('/fn/bacon/currentBalance',{method:'POST'})
-			if (!response.ok) {
-				console.error('error fetching current amount')
-				return
-			}
-			const data = JSON.parse(await response.json())
-			console.log(data)
-		}
-	</script>
+	<span>
+		My Address: <br><span id="my-address">Loading...</span>
+	</span>
+	<section id="modal">
+		<div id="modal-data"></div>
+	</section>
+	<script src="hc.js"></script>
 </body>
 </html>

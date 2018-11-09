@@ -44,12 +44,17 @@
                 },
                 {
                     "Name": "currentBalance",
-                    "CallingType": "json",
+                    "CallingType": "string",
                     "Exposure": "public"
                 },
                 {
                     "Name": "getHistory",
                     "CallingType": "json",
+                    "Exposure": "public"
+                },
+                {
+                    "Name": "getAddress",
+                    "CallingType": "string",
                     "Exposure": "public"
                 }
             ]
