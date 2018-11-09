@@ -100,15 +100,37 @@ function sendRes(message,id) {
   console.log('response received:')
   debug(message)
 }
-function receive(from, msg) {
-  var type = msg.type;
-  if (type=="ping") {
-    return App.Agent.Hash
+function receive(peer, transactionHash) {
+  var transaction
+  try{
+    transaction = get(transactionHash)
+  }catch(e){
+    console.log('error fetching transaction')
+    return
   }
-  return "unknown type"
+  if (currentBalance(peer) < transaction.amount) {
+    return 'failed transaction'
+  }
+  if (transaction.from_link) {
+    return 'transaction already validated'
+  }
+  var linkHash = commit('link',{
+    Links:[
+      {
+        Link:transactionHash,
+        Base:peer,
+        Tag:'verified'
+      }
+    ]
+  })
+  transaction.from_link = linkHash  
+  update('transaction',transaction,hash)
 }
-function currentBalance(hash) {
-
+function currentBalance(peerAddress) {
+  if (!peerAddress) {
+    peerAddress = App.Agent.Hash
+  }
+  var links = getLinks()
 }
 function getHistory(hash) {
 }
