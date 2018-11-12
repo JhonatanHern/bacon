@@ -41,30 +41,29 @@ function genesis () {
  * @see https://developer.holochain.org/Validation_Functions
  */
 function validateCommit (entryType, entry, header, pkg, sources) {
+  console.log('commit validation')
   debug(entry)
+  debug(header)
+  debug(entryType)
+  console.log('/commit validation')
   return true
   switch(entryType){
     case 'transaction':
-      return true
-    case 'link':
-      if (entry.Base === 'in') {
-        return 
-      }else if(entry.Base === 'out'){
-        return 
-      }
+      var amount = entry.amount
+      return amount > 0 && amount === Math.floor(amount)
   }
   return false
+}
+function validateLink(entryType, hash, links, package, sources){
+  if (links.length!==1) {
+    return false
+  }
 }
 function validatePut (entryType, entry, header, pkg, sources) {
   return validateCommit(entryType, entry, header, pkg, sources);
 }
 function validateMod (entryType, entry, header, replaces, pkg, sources) {
-  return true
-  /*
-  return validateCommit(entryType, entry, header, pkg, sources)
-    // Only allow the creator of the entity to modify it.
-    && getCreator(header.EntryLink) === getCreator(replaces);
-  */
+  return false
 }
 function validateDel (entryType, hash, pkg, sources) {
   return false;
@@ -83,54 +82,83 @@ function transact(transactionData) {
   var transaction = {
     timestamp: (new Date()).valueOf(),
     concept  : transactionData.concept,
-    amount   : Number(transactionData.amount),
+    amount   : Math.floor(Number(transactionData.amount)),
     from     : App.Agent.Hash,
     to       : transactionData.to
   }
-  var hash = commit('transaction',transaction)
-  var linkHash = commit('link',{
+  var T0Hash = commit('transaction',transaction)
+  var L1Hash = commit('link',{
     Links:[
       {
         Base:transactionData.to,
         Link:hash,
-        Tag:'out'
+        Tag:'in'
       }
     ]
   })
-  transaction.to_link = linkHash
-  update('transaction',transaction,hash)
+  debug(L1Hash)
+  console.log(JSON.stringify({T0:T0Hash,L1:L1Hash},null,2))
   //send message to peer so he can validate it
-  send( transactionData.to , hash , { Callback : { Function : 'sendRes' , ID : Math.random()+'' } } )
+  send( transactionData.to , JSON.stringify({T0:T0Hash,L1:L1Hash}) , { Callback : { Function : 'sendRes' , ID : Math.random()+'' } } )
 }
 function sendRes(message,id) {
   console.log('response received:')
   debug(message)
 }
-function receive(peer, transactionHash) {
-  var transaction
-  try{
-    transaction = get(transactionHash)
-  }catch(e){
-    console.log('error fetching transaction')
+function receive(peer, transactionData) {
+  transactionData = JSON.parse(transactionData)
+  console.log('begin receiving ----------------------------------------------------')
+  console.log('receiving transaction from '+peer)
+  if ( ! transactionData.T0 || ! transactionData.L1 ) {
+    console.log( 'missing data in transaction from ' + peer )
     return
   }
-  if (currentBalance(peer) < transaction.amount) {
-    return 'failed transaction'
+  var transaction = get(transactionData.T0)
+  if ( transaction.amount <= 0 || getCreator( transaction ) !== peer || transaction.from !== peer || transaction.to !== App.Agent.Hash ) {
+    console.log('invalid transaction')
+    return
   }
-  if (transaction.from_link) {
-    return 'transaction already validated'
+  var L1 = get( transactionData.L1 )
+  if ( ! L1 || getCreator( transactionData.L1 ) !== peer ) {
+    console.log('sent link invalid')
+    return
   }
-  var linkHash = commit('link',{
-    Links:[
-      {
-        Link:transactionHash,
-        Base:peer,
-        Tag:'verified'
-      }
-    ]
+  debug(L1)
+  var L2Hash = commit('link',{
+    Links:[{
+      Link : transactionData.T0
+      Base : peer,
+      Tag  : 'out',//out of my peer's account
+    }]
   })
-  transaction.from_link = linkHash  
-  update('transaction',transaction,hash)
+  var T1 = {
+    'timestamp' : transaction.timestamp,
+    'from_link' : transactionData.L1,
+    'concept'   : transaction.concept,
+    'to_link'   : L2Hash
+    'amount'    : transaction.amount,
+    'from'      : transaction.from,
+    'to'        : transaction.to,
+  }
+  var T1Hash = commit('transaction',T1)
+  //the next link is intended to make a connection between T0 and T1 so the peers who
+  //want to validate the transaction can find the full record.
+  commit('link',{
+    Links:[{
+      Base : transactionData.T0,
+      Tag  : 'completed',
+      Link : T1Hash
+    }]
+  })
+  console.log('end of transaction----------------------------------------------------')
+}
+/*
+ * If a transaction is valid, this function will return the associated amount
+ * otherwise, it will return zero.
+*/
+function validTransaction(transaction) {
+  debug(transaction)
+  return transaction.Entry.amount
 }
 function currentBalance(peerAddress) {
   if (!peerAddress) {
@@ -139,13 +167,7 @@ function currentBalance(peerAddress) {
   var links = getLinks( peerAddress, '' ,{ Load : true } )
   var billing = initialBalance
   for (var i = links.length - 1; i >= 0; i--) {
-    if (links[i].Entry.from_link && links[i].Entry.to_link) {//validated transaction
-      if (links[i].Entry.from === peerAddress && getCreator(links[i].Hash) === peerAddress) {
-        billing -= links[i].Entry.amount
-      }else if(links[i].Entry.to === peerAddress){
-        billing += links[i].Entry.amount
-      }
-    }
+    billing += validTransaction(links[i])
   }
   return billing
 }
@@ -155,6 +177,6 @@ function getHistory(hash) {
   }
   return getLinks( peerAddress, { Load : true } )
 }
-function getAddress() {
+function getAddress(argument) {
   return App.Agent.Hash
 }

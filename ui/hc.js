@@ -12,6 +12,9 @@ async function refreshAmount() {
 }
 async function transfer() {
 	const to = prompt('insert peer hash')
+	if (!to) {
+		return
+	}
 	const amount = prompt('insert number of coins to transfer (integer only)')
 	if (amount > currentAmount) {
 		alert('you\'ll need more money to do such a transaction')
