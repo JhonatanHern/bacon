@@ -97,13 +97,9 @@ function transact(transactionData) {
       {
         T0 : T0Hash ,
         L1 : L1Hash
-      } , {
-        Callback : {
-          Function : 'sendRes' ,
-          ID : Math.random()+''
-        }
       }
     )
+    console.log('res: ',res)
   }catch(e){
     console.log('Error: ',e)
   }
@@ -113,6 +109,7 @@ function sendRes(message,id) {
   console.log( 'response received:' )
   debug( message )
 }
+
 function receive(peer, transactionData) {
   console.log('begin receiving ----------------------------------------------------')
   console.log('receiving transaction from '+peer)
