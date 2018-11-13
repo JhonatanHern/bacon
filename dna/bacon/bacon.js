@@ -99,7 +99,6 @@ function transact(transactionData) {
         L1 : L1Hash
       }
     )
-    console.log('res: ',res)
   }catch(e){
     console.log('Error: ',e)
   }
@@ -111,6 +110,7 @@ function sendRes(message,id) {
 }
 
 function receive(peer, transactionData) {
+  debug(transactionData)
   console.log('begin receiving ----------------------------------------------------')
   console.log('receiving transaction from '+peer)
   if ( ! transactionData.T0 || ! transactionData.L1 ) {
@@ -118,7 +118,7 @@ function receive(peer, transactionData) {
     return
   }
   var transaction = get(transactionData.T0)
-  if ( transaction.amount <= 0 || getCreator( transaction ) !== peer || transaction.from !== peer || transaction.to !== App.Key.Hash ) {
+  if ( transaction.amount <= 0 || getCreator( transactionData.T0 ) !== peer || transaction.from !== peer || transaction.to !== App.Key.Hash ) {
     console.log('invalid transaction')
     return
   }
