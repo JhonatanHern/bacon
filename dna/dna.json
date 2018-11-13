@@ -32,7 +32,7 @@
                 },
                 {
                     "Name": "link",
-                    "DataFormat": "link",
+                    "DataFormat": "links",
                     "Sharing": "public"
                 }
             ],

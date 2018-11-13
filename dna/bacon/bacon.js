@@ -41,43 +41,42 @@ function genesis () {
  * @see https://developer.holochain.org/Validation_Functions
  */
 function validateCommit (entryType, entry, header, pkg, sources) {
-  console.log('commit validation')
-  debug(entry)
-  debug(header)
-  debug(entryType)
-  console.log('/commit validation')
-  return true
   switch(entryType){
+    case 'link':
+      return entry && entry.Links && entry.Links.length === 1 &&
+        validTag(entry.Links[0].Tag)
     case 'transaction':
       var amount = entry.amount
       return amount > 0 && amount === Math.floor(amount)
   }
   return false
 }
+function validTag(tag) {
+  switch(tag){
+    case 'in':
+    case 'out':
+    case 'completed':
+      return true
+  }
+  return false
+}
 function validateLink(entryType, hash, links, package, sources){
+  debug(arguments)
   if (links.length!==1) {
     return false
   }
+  return true
 }
 function validatePut (entryType, entry, header, pkg, sources) {
   return validateCommit(entryType, entry, header, pkg, sources);
 }
-function validateMod (entryType, entry, header, replaces, pkg, sources) {
-  return false
-}
-function validateDel (entryType, hash, pkg, sources) {
-  return false;
-}
-function validatePutPkg (entryType) {
-  return null;
-}
 
-function validateModPkg (entryType) {
-  return null;
-}
-function validateDelPkg (entryType) {
-  return null;
-}
+function validateMod () {return false}
+function validateDel () {return false}
+function validatePutPkg (entryType) {return null}
+function validateModPkg (entryType) {return null}
+function validateDelPkg (entryType) {return null}
+
 function transact(transactionData) {
   var transaction = {
     timestamp: (new Date()).valueOf(),
@@ -87,17 +86,16 @@ function transact(transactionData) {
     to       : transactionData.to
   }
   var T0Hash = commit('transaction',transaction)
+  console.log('transaction\'s commit successful ',T0Hash)
   var L1Hash = commit('link',{
     Links:[
       {
-        Base:transactionData.to,
-        Link:hash,
-        Tag:'in'
+        Base : transactionData.to,
+        Link : T0Hash,
+        Tag  : 'in'
       }
     ]
   })
-  debug(L1Hash)
-  console.log(JSON.stringify({T0:T0Hash,L1:L1Hash},null,2))
   //send message to peer so he can validate it
   send( transactionData.to , JSON.stringify({T0:T0Hash,L1:L1Hash}) , { Callback : { Function : 'sendRes' , ID : Math.random()+'' } } )
 }
