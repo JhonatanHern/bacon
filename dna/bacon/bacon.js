@@ -3,11 +3,6 @@
  * 
  * 
  * 
- * 
- * 
- * 
- * 
- * 
 */
 var initialBalance = 100
 
@@ -61,7 +56,6 @@ function validTag(tag) {
   return false
 }
 function validateLink(entryType, hash, links, package, sources){
-  debug(arguments)
   if (links.length!==1) {
     return false
   }
@@ -98,10 +92,22 @@ function transact(transactionData) {
   })
   //send message to peer so he can validate it
   try{
-    send( transactionData.to , {T0:T0Hash,L1:L1Hash} , { Callback : { Function : 'sendRes' , ID : Math.random()+'' } } )
+    var res = send(
+      transactionData.to ,
+      {
+        T0 : T0Hash ,
+        L1 : L1Hash
+      } , {
+        Callback : {
+          Function : 'sendRes' ,
+          ID : Math.random()+''
+        }
+      }
+    )
   }catch(e){
     console.log('E: ',e)
   }
+  return '{"success":true,"message":"Transaction sent"}'
 }
 function sendRes(message,id) {
   console.log( 'response received:' )

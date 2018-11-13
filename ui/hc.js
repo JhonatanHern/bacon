@@ -33,7 +33,7 @@ async function transfer() {
 		console.error('error in transfer')
 		return
 	}
-	consultBalance()
+	refreshAmount()
 }
 async function consultBalance() {
 	const response = await fetch('/fn/bacon/currentBalance',{
@@ -56,6 +56,5 @@ async function getAddress() {
 	const data = await response.text()
 	document.getElementById('my-address').innerText = data
 }
-// setTimeout(()=>location.reload(),10000)
 getAddress()
 refreshAmount()
