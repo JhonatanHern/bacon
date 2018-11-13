@@ -105,7 +105,7 @@ function transact(transactionData) {
       }
     )
   }catch(e){
-    console.log('E: ',e)
+    console.log('Error: ',e)
   }
   return '{"success":true,"message":"Transaction sent"}'
 }
