@@ -102,8 +102,8 @@ function transact(transactionData) {
   send( transactionData.to , JSON.stringify({T0:T0Hash,L1:L1Hash}) , { Callback : { Function : 'sendRes' , ID : Math.random()+'' } } )
 }
 function sendRes(message,id) {
-  console.log('response received:')
-  debug(message)
+  console.log( 'response received:' )
+  debug( message )
 }
 function receive(peer, transactionData) {
   transactionData = JSON.parse(transactionData)
