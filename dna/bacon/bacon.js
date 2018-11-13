@@ -97,7 +97,11 @@ function transact(transactionData) {
     ]
   })
   //send message to peer so he can validate it
-  send( transactionData.to , JSON.stringify({T0:T0Hash,L1:L1Hash}) , { Callback : { Function : 'sendRes' , ID : Math.random()+'' } } )
+  try{
+    send( transactionData.to , JSON.stringify({T0:T0Hash,L1:L1Hash}) , { Callback : { Function : 'sendRes' , ID : Math.random()+'' } } )
+  }catch(e){
+    console.log('E: ',e)
+  }
 }
 function sendRes(message,id) {
   console.log( 'response received:' )
