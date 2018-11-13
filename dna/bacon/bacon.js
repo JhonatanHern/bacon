@@ -29,7 +29,7 @@ function genesis () {
  * @param  {string|object} entry Data with type as per DNA config for this zome.
  * @param  {Header-object} header Header object for this entry.
  * @param  {Package-object|null} pkg Package object for this entry, if exists.
- * @param  {string[]} sources Array of agent hashes involved in this commit.
+ * @param  {string[]} sources Array of Agent hashes involved in this commit.
  * @return {boolean} true if this entry may be committed to a source chain.
  *
  * @see https://developer.holochain.org/API#validateCommit_entryType_entry_header_package_sources
@@ -76,7 +76,7 @@ function transact(transactionData) {
     timestamp: (new Date()).valueOf(),
     concept  : transactionData.concept,
     amount   : Math.floor(Number(transactionData.amount)),
-    from     : App.Agent.Hash,
+    from     : App.Key.Hash,
     to       : transactionData.to
   }
   var T0Hash = commit('transaction',transaction)
@@ -118,7 +118,7 @@ function receive(peer, transactionData) {
     return
   }
   var transaction = get(transactionData.T0)
-  if ( transaction.amount <= 0 || getCreator( transaction ) !== peer || transaction.from !== peer || transaction.to !== App.Agent.Hash ) {
+  if ( transaction.amount <= 0 || getCreator( transaction ) !== peer || transaction.from !== peer || transaction.to !== App.Key.Hash ) {
     console.log('invalid transaction')
     return
   }
@@ -166,7 +166,7 @@ function validTransaction(transaction) {
 }
 function currentBalance(peerAddress) {
   if (!peerAddress) {
-    peerAddress = App.Agent.Hash
+    peerAddress = App.Key.Hash
   }
   var links = getLinks( peerAddress, '' ,{ Load : true } )
   var billing = initialBalance
@@ -177,10 +177,10 @@ function currentBalance(peerAddress) {
 }
 function getHistory(hash) {
   if (!peerAddress) {
-    peerAddress = App.Agent.Hash
+    peerAddress = App.Key.Hash
   }
   return getLinks( peerAddress, { Load : true } )
 }
 function getAddress(argument) {
-  return App.Agent.Hash
+  return App.Key.Hash
 }
