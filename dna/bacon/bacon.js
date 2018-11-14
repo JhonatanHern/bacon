@@ -147,22 +147,56 @@ function receive(peer, transactionData) {
   var T1Hash = commit('transaction',T1)
   //the next link is intended to make a connection between T0 and T1 so the peers who
   //want to validate the transaction can find the full record.
-  commit('link',{
+  var linkingLink = commit('link',{
     Links:[{
       Base : transactionData.T0,
       Tag  : 'completed',
       Link : T1Hash
     }]
   })
+  debug(linkingLink)
   console.log('end of transaction----------------------------------------------------')
 }
 /*
  * If a transaction is valid, this function will return the associated amount
  * otherwise, it will return zero.
 */
-function validTransaction(transaction) {
-  debug(transaction)
-  return transaction.Entry.amount
+function validTransaction(transaction,address) {
+  var T1 = getLinks(transaction.Hash,'',{Load:true})[0]
+  if (!T1) {
+    console.log('transaction not accepted')
+    return 0
+  }
+  switch(transaction.Tag){
+    case 'in':
+      if ( getCreator( transaction.Hash ) !== transaction.Entry.from  ||//creator
+        transaction.Entry.timestamp !== T1.Entry.timestamp || // 
+        transaction.Entry.concept !== T1.Entry.concept || // 
+        transaction.Entry.amount !== T1.Entry.amount || // 
+        transaction.Entry.from !== T1.Entry.from || // 
+        transaction.Entry.to !== T1.Entry.to || // 
+        transaction.Entry.to !== address || // current node validation
+        getCreator(T1.Hash) !== address // response validation
+        ) {
+        return 0//invalid transaction
+      }
+      return transaction.Entry.amount
+    case 'out':
+      if ( getCreator( transaction.Hash ) !== transaction.Entry.from  ||//creator
+        transaction.Entry.timestamp !== T1.Entry.timestamp || // 
+        transaction.Entry.concept !== T1.Entry.concept || // 
+        transaction.Entry.amount !== T1.Entry.amount || // 
+        transaction.Entry.from !== T1.Entry.from || // 
+        transaction.Entry.to !== T1.Entry.to || // 
+        transaction.Entry.from !== address || // current node validation
+        getCreator(T1.Hash) !== transaction.to // response validation
+        ) {
+        return 0//invalid transaction
+      }
+      return - transaction.Entry.amount
+    default:
+      return 0//
+  }
 }
 function currentBalance(peerAddress) {
   if (!peerAddress) {
@@ -171,7 +205,7 @@ function currentBalance(peerAddress) {
   var links = getLinks( peerAddress, '' ,{ Load : true } )
   var billing = initialBalance
   for (var i = links.length - 1; i >= 0; i--) {
-    billing += validTransaction(links[i])
+    billing += validTransaction(links[i],peerAddress)
   }
   return billing
 }
