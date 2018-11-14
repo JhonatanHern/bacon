@@ -191,6 +191,9 @@ function validTransaction(transaction,address) {
         transaction.Entry.from !== address || // current node validation
         getCreator(T1.Hash) !== transaction.to // response validation
         ) {
+        console.log('invalid coz\':')
+        console.log(transaction.Entry.from !== address)
+        console.log(getCreator(T1.Hash) !== transaction.to)
         return 0//invalid transaction
       }
       return - transaction.Entry.amount
